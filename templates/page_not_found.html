@@ -2,5 +2,6 @@
 The page that you are trying to view is not found on the server..
 </h1>
 
-<p> hey! user, if you think this is an error, please contact me on github @abhinav_cmd, I'll be happy to help! go to the <a href="/"> home page</a> 😃
+<p> hey! user, if you think this is an error, please contact me on github @abhinav-cmd, I'll be happy to help! go to the <a href={{url_for("home")}}> home page</a> 😃
   </p>
+<!-- in place of {{url_for('home')}} we could've written just a single '/' but jinja has this functionality of explicitly stating the page you want to go to, so why not use it!-->
