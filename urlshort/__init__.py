@@ -5,7 +5,7 @@ def create_app(test_config=None):
     app.secret_key = 'thatswhatshesaid2203__'
 
 
-    from . import urlshort
+    from urlshort import urlshort
     app.register_blueprint(urlshort.bp)
 
     return app
