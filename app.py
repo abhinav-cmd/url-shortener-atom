@@ -26,7 +26,7 @@ def your_url():
         else:
             f=request.files['file']
             full_name = request.form['code'] + secure_filename(f.filename)
-            f.save('/Users/abhinav/Desktop/url-shortener/' + full_name)
+            f.save('/Users/abhinav/Desktop/url-shortener/static/user_files/' + full_name)
             urls[request.form['code']] = {'file':full_name} #for every key we have a value
         with open('urls.json','w') as url_file:
             json.dump(urls, url_file)
@@ -35,3 +35,14 @@ def your_url():
         return redirect(url_for('home')) #best out of all three
         #return redirect('/') # redirect because it is more helpful to the user, render_template will leave them confused
         #return render_template('home.html')
+
+@app.route('/<string:code>')
+def redirect_to_code(code):
+    if os.path.exists('urls.json'):
+        with open('urls.json') as urls_file:
+            urls=json.load(urls_file)
+            if code in urls.keys():
+                if 'url' in urls[code].keys():
+                    return redirect(urls[code]['url'])
+                else:
+                    return redirect(url_for('static', filename='user_files/' + urls[code]['file']))
