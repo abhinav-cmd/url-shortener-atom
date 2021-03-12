@@ -1,15 +1,15 @@
-from flask import Flask,render_template,request, redirect, url_for, flash, abort, session, jsonify
+from flask import render_template,request, redirect, url_for, flash, abort, session, jsonify,Blueprint
 import json
 import os.path
 from werkzeug.utils import secure_filename
-app=Flask(__name__)
-app.secret_key = 'thatswhatshesaid2203__'
 
-@app.route('/')
+bp= Blueprint('urlshort',__name__)
+
+@bp.route('/')
 def home():
     return render_template('home.html',codes=session.keys())
 
-@app.route('/your-url', methods=['GET','POST']) #methods is a list of methods you want to allow, if you dont specify it, it will give an error
+@bp.route('/your-url', methods=['GET','POST']) #methods is a list of methods you want to allow, if you dont specify it, it will give an error
 def your_url():
     if request.method == 'POST':
         urls = {}
@@ -20,13 +20,13 @@ def your_url():
         if request.form['code'] in urls.keys():
             flash("This short name has already been assigned. Please use another one.")
              #if the code already exists in the dictionary it will not be overwritten
-            return redirect(url_for('home'))
+            return redirect(url_for('urlshort.home'))
         if 'url' in request.form.keys():
             urls[request.form['code']] = {'url':request.form['url']} #for every key we have a value
         else:
             f=request.files['file']
             full_name = request.form['code'] + secure_filename(f.filename)
-            f.save('/Users/abhinav/Desktop/url-shortener/static/user_files/' + full_name)
+            f.save('/Users/abhinav/Desktop/url-shortener/urlshort/static/user_files/' + full_name)
             urls[request.form['code']] = {'file':full_name} #for every key we have a value
 
         with open('urls.json','w') as url_file:
@@ -35,11 +35,11 @@ def your_url():
         return render_template('your_url.html',code=request.form['code']) #request.args for get
 
     else:
-        return redirect(url_for('home')) #best out of all three
+        return redirect(url_for('urlshort.home')) #best out of all three
         #return redirect('/') # redirect because it is more helpful to the user, render_template will leave them confused
         #return render_template('home.html')
 
-@app.route('/<string:code>')
+@bp.route('/<string:code>')
 def redirect_to_code(code):
     if os.path.exists('urls.json'):
         with open('urls.json') as urls_file:
@@ -51,11 +51,11 @@ def redirect_to_code(code):
                     return redirect(url_for('static', filename='user_files/' + urls[code]['file']))
     return abort(404)
 
-@app.errorhandler(404)
+@bp.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'),404
 
 
-@app.route('/api')
+@bp.route('/api')
 def session_api():
     return jsonify(list(session.keys()))
